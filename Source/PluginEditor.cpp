@@ -27,6 +27,8 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
         addAndMakeVisible(comp);
     }
 
+    startTimer(60);
+
     setSize (600, 400);
 }
 
@@ -158,7 +160,12 @@ void SimpleEQAudioProcessorEditor::timerCallback()
     if (parametersChanged.compareAndSetBool(false, true))
     {
         //update the monochain
+        auto chainSettings = getChainSettings(audioProcessor.apvts);
+        auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
+        updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+
         //signal a repaint
+        repaint();
     }
 }
 
