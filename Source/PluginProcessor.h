@@ -93,7 +93,7 @@ inline auto makeLowCutFilter(const ChainSettings& chainSettings, double sampleRa
 
 inline auto makeHighCutFilter(const ChainSettings& chainSettings, double sampleRate)
 {
-    return juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod
+    return juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod
     (
         chainSettings.highCutFreq,
         sampleRate,

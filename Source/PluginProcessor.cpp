@@ -269,8 +269,8 @@ void SimpleEQAudioProcessor::updateFilters()
 	auto chainSettings = getChainSettings(apvts);
 
 	updateLowCutFilters(chainSettings);
-	updateHighCutFilters(chainSettings);
 	updatePeakFilter(chainSettings);
+	updateHighCutFilters(chainSettings);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParamterLayout()
@@ -315,7 +315,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 	layout.add(std::make_unique<juce::AudioParameterFloat>(
 		"Peak Quality",
 		"Peak Quailty",
-		juce::NormalisableRange<float>(0.1f, 10.f, 0.5f, 1.f),
+		juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
 		1.f)
 	);
 
