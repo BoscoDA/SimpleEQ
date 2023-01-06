@@ -312,12 +312,14 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
 
 void ResponseCurveComponent::timerCallback()
 {
+	if (shouldShowFFTAnalysis)
+	{
+		auto fftBounds = getAnalysisArea().toFloat();
+		auto samepleRate = audioProcessor.getSampleRate();
 
-	auto fftBounds = getAnalysisArea().toFloat();
-	auto samepleRate = audioProcessor.getSampleRate();
-
-	leftPathProducer.process(fftBounds, samepleRate);
-	rightPathProducer.process(fftBounds, samepleRate);
+		leftPathProducer.process(fftBounds, samepleRate);
+		rightPathProducer.process(fftBounds, samepleRate);
+	}
 
 	if (parametersChanged.compareAndSetBool(false, true))
 	{
@@ -446,17 +448,20 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 		responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
 	}
 
-	auto leftChannelFFTPath = leftPathProducer.getPath();
-	leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+	if (shouldShowFFTAnalysis)
+	{
+		auto leftChannelFFTPath = leftPathProducer.getPath();
+		leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
 
-	g.setColour(Colours::skyblue);
-	g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
+		g.setColour(Colours::skyblue);
+		g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
 
-	auto rightChannelFFTPath = rightPathProducer.getPath();
-	rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+		auto rightChannelFFTPath = rightPathProducer.getPath();
+		rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
 
-	g.setColour(Colours::lightyellow);
-	g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
+		g.setColour(Colours::lightyellow);
+		g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
+	}
 
 	g.setColour(Colours::orange);
 	g.drawRoundedRectangle(getRenderArea().toFloat(), 4.f, 1.f);
@@ -689,6 +694,14 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
 		}
 	};
 
+	analyzerEnabledButton.onClick = [safePtr]()
+	{
+		if (auto* comp = safePtr.getComponent())
+		{
+			auto enabled = comp->analyzerEnabledButton.getToggleState();
+			comp->responseCurveComponent.toggleAnalysisEnablement(enabled);
+		}
+	};
 	setSize(600, 480);
 }
 
